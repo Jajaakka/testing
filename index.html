@@ -18,6 +18,37 @@
             padding: 10px 20px;
             font-size: 16px;
             margin-top: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .clicker-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .clicker-btn:active {
+            background-color: #46929e;
+        }
+
+        /* Display for the morse input */
+        .morse-display {
+            margin-top: 20px;
+            font-size: 24px;
+        }
+
+        /* Cipher solution */
+        .cipher-display {
+            margin-top: 40px;
+            font-size: 20px;
+            font-weight: bold;
         }
         
         /* Bottom Navigation Container */
@@ -115,7 +146,10 @@
     <h2>Energy: <span id="energy">10</span>/10</h2>
     <h2>Click Value: <span id="clickValue">1</span></h2>
 
-    <button id="clickButton">Click Me!</button>
+    <h2>Daily Cipher : <span id='cipherDisplay'></span></h2>
+    <h2>Your Answer: <span id='morseDisplay'></span></h2>
+
+    <button class="clicker-btn" id="clickButton">Click Me!</button>
     <br /><br />
     <button id="boosterButton">Activate Booster</button>
     <p id="boosterStatus"></p>
@@ -145,6 +179,9 @@
         let boosterActive = false;
         let boosterCooldown = false;
 
+        let userMorseCode = "";
+        let cipher = "";
+
         // DOM Elements
         const clickCountElement = document.getElementById("clicks");
         const energyElement = document.getElementById("energy");
@@ -152,7 +189,10 @@
         const clickButton = document.getElementById("clickButton");
         const boosterButton = document.getElementById("boosterButton");
         const boosterStatus = document.getElementById("boosterStatus");
+        const morseDisplay = document.getElementById('morseDisplay');
+        const cipherDisplay = document.getElementById('cipherDisplay');
 
+        
         // Click handler function
         function handleClick() {
             if (energy > 0) {
@@ -161,6 +201,54 @@
                 updateDisplay();
             }
         }
+
+        // Predefined cipher codes, one for each day.
+        const dailyCiphers = [
+            '. --.- ..- .. - -.--', // Example: EQUITY (Morse: .-  -...  -.-.)
+            '.... .. -.-. -.-. ..- .--.',  // Example: HICCUP (Morse: -.  ---  -..)
+            '- --- -.- . -. ...', // Example: TOKENS (Morse: --.  .-  --  .)
+            // Add more for each day as needed
+        ];
+
+        // Get daily cipher (can use Date() for real-time daily selection)
+        const dayIndex = new Date().getDay(); // 0 (Sunday) to 6 (Saturday)
+        cipher = dailyCiphers[dayIndex] || dailyCiphers[0]; // Default to 0 if no cipher
+        cipherDisplay.innerHTML = `Daily Cipher: ${cipher}`;
+
+        // Logic to detect Tap (".") and Hold ("-")
+        let holdTimeout;
+
+        clickerButton.addEventListener('mousedown', () => {
+            holdTimeout = setTimeout(() => {
+                userMorseCode += '-'; // Holding registers a dash "-"
+                updateMorseDisplay();
+            }, 500); // Holding for 500ms counts as a dash ("-")
+        });
+
+        clickerButton.addEventListener('mouseup', () => {
+            if (holdTimeout) {
+                clearTimeout(holdTimeout);
+                if (!userMorseCode.endsWith('-')) {
+                    userMorseCode += '.'; // Tap registers a dot (".")
+                }
+                updateMorseDisplay();
+            }
+        });
+
+        function updateMorseDisplay() {
+            morseDisplay.innerHTML = `Your Morse Code: ${userMorseCode}`;
+            // Check if user's Morse code matches the cipher
+            if (userMorseCode === cipher.replace(/\s/g, '')) {
+                alert("You've solved the cipher!");
+                resetMorseInput();
+            }
+        }
+
+        function resetMorseInput() {
+            userMorseCode = ""; // Clear the user's input
+            morseDisplay.innerHTML = `Your Morse Code: `;
+        }
+
 
         // Booster function to double click value for 10 seconds
         function activateBooster() {
