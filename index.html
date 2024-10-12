@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Incremental Clicker Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            justify-content: space-between;
+            display: flex;
+            flex-direction:  column;
+            min-height: 100vh;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        
+        /* Bottom Navigation Container */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: #30717c;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        /* Navigation Icons */
+        .nav-item {
+            color: white;
+            text-align: center;
+            flex: 1;
+        }
+        .nav-item img {
+            width: 30px;
+            height: 30px;
+        }
+        .nav-item p {
+            margin: 5px 0 0;
+            font-size: 14px;
+        }
+
+        /* Center Clicker Button */
+        .center-circle {
+            position: relative;
+            bottom: 30px; /* Pushing the circle above the bar */
+            background-color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease;
+        }
+        .center-circle img {
+            width: 40px;
+            height: 40px;
+        }
+
+        /* Click effect */
+        .center-circle:active {
+            transform: scale(0.9);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-item img {
+                width: 25px;
+                height: 25px;
+            }
+            .nav-item p {
+                font-size: 12px;
+            }
+            .center-circle {
+                width: 50px;
+                height: 50px;
+            }
+            .center-circle img {
+                width: 30px;
+                height: 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-item img {
+                width: 20px;
+                height: 20px;
+            }
+            .nav-item p {
+                font-size: 10px;
+            }
+            .center-circle {
+                width: 40px;
+                height: 40px;
+            }
+            .center-circle img {
+                width: 25px;
+                height: 25px;
+            
+    </style>
+</head>
+<body>
+    <h1>Incremental Clicker Game</h1>
+    <h2>Clicks: <span id="clicks">0</span></h2>
+    <h2>Energy: <span id="energy">10</span>/10</h2>
+    <h2>Click Value: <span id="clickValue">1</span></h2>
+
+    <button id="clickButton">Click Me!</button>
+    <br /><br />
+    <button id="boosterButton">Activate Booster</button>
+    <p id="boosterStatus"></p>
+
+     <!-- Bottom Navigation Bar -->
+    <div class="bottom-nav">
+        <div class="nav-item">
+            <a href="shop.html">Shop</a>
+        </div>
+        <div class="nav-item">
+            <a href="#">Nav 2</a>
+        </div>
+        <div class="center-circle">
+            <img src="https://via.placeholder.com/40" href="#">
+        </div>
+        <div class="nav-item">
+            <a href="#">Nav 4</a>
+        </div>
+    </div>
+
+    <script>
+        // Initial values
+        let clicks = 0;
+        let energy = 10;
+        const energyMax = 10;
+        let clickValue = 1;
+        let boosterActive = false;
+        let boosterCooldown = false;
+
+        // DOM Elements
+        const clickCountElement = document.getElementById("clicks");
+        const energyElement = document.getElementById("energy");
+        const clickValueElement = document.getElementById("clickValue");
+        const clickButton = document.getElementById("clickButton");
+        const boosterButton = document.getElementById("boosterButton");
+        const boosterStatus = document.getElementById("boosterStatus");
+
+        // Click handler function
+        function handleClick() {
+            if (energy > 0) {
+                clicks += clickValue;
+                energy--;
+                updateDisplay();
+            }
+        }
+
+        // Booster function to double click value for 10 seconds
+        function activateBooster() {
+            if (!boosterCooldown) {
+                boosterActive = true;
+                clickValue *= 2;
+                boosterCooldown = true;
+                updateDisplay();
+                boosterStatus.innerText = "Booster Active! Double Click Value for 10 seconds!";
+
+                // Reset click value after 10 seconds
+                setTimeout(() => {
+                    clickValue /= 2;
+                    boosterActive = false;
+                    updateDisplay();
+                    boosterStatus.innerText = "";
+                }, 10000);
+
+                // Cooldown for 30 seconds
+                setTimeout(() => {
+                    boosterCooldown = false;
+                    boosterButton.innerText = "Activate Booster";
+                }, 30000);
+            }
+        }
+
+        // Update the display elements
+        function updateDisplay() {
+            clickCountElement.innerText = clicks;
+            energyElement.innerText = energy;
+            clickValueElement.innerText = clickValue;
+            clickButton.disabled = energy <= 0;
+            boosterButton.innerText = boosterCooldown ? "Booster on Cooldown" : "Activate Booster";
+        }
+
+        // Regenerate energy over time
+        setInterval(() => {
+            if (energy < energyMax) {
+                energy++;
+                updateDisplay();
+            }
+        }, 1000); // 1 energy per second
+
+        // Event Listeners
+        clickButton.addEventListener("click", handleClick);
+        boosterButton.addEventListener("click", activateBooster);
+
+        // Initial display update
+        updateDisplay();
+    </script>
+</body>
+</html>
